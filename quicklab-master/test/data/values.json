@@ -1,8 +1,0 @@
-{
-    "api": {
-        "project": {
-            "url": "https://gitlab.com/gitlab-org/examples/npm-install",
-            "tar": "test/data/tar/templateProject.tar.gz"
-        }
-    }
-}
