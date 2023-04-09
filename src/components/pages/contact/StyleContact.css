@@ -1,0 +1,15 @@
+.header{
+    height: 250px;
+}
+
+.detailsOtto{
+    display: inline-block;
+    width:600px;
+    height:160px;
+}
+
+.detailsSander{
+    display: inline-block;
+    width:600px;
+    height:160px;
+}

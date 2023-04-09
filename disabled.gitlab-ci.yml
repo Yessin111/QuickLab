@@ -1,0 +1,150 @@
+# Reference: https://docs.gitlab.com/ee/ci/yaml/
+
+# Docker image
+image: node:8.11-alpine
+
+# The variables below are used in the MySQL service that runs in the CI
+# It is accessible by using the hostname 'mysql'
+variables:
+  MYSQL_DATABASE: "database"
+  MYSQL_ROOT_PASSWORD: "password"
+
+# Cache libraries in between jobs
+# https://docs.gitlab.com/ee/ci/caching/index.html
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+
+# Displays time before each script
+before_script:
+  - date
+  - export PATH="./node_modules/.bin:$PATH"
+  - npm install --no-optional
+  - date
+
+# Displays time after each script
+after_script:
+  - date
+
+# Stages
+stages:
+  - check
+  - test
+  - analyse
+  - build
+
+#
+# Builds the application for deployment (or in this case, to see if it crashes even before testing)
+#
+build:
+  stage: build
+  when: manual
+  allow_failure: true
+  script:
+    - echo 'Building npm package'
+    - npm build
+    - react-scripts build
+
+#
+# Runs ESlint on the codebase
+#
+lint:
+  stage: check
+  script:
+    - npm run lint
+
+#
+# A test suite that tests the database functions
+#
+database_test:
+  stage: test
+
+  # In order to be able to use the database, a service has to be added and configured as below
+  # Afterwards it is accessible with hostname: mysql, user: root, and the credentials specified in the environment variables
+  services:
+    - mysql:5.7
+  script:
+    - npm run test:db
+  artifacts:
+    paths:
+      - superlog.log
+
+#
+# A test suite with a couple of smoke tests that test the basic functionality of the application
+#
+smoke_test:
+  stage: test
+  script:
+    - npm run test:smoke
+  artifacts:
+    paths:
+      - superlog.log
+
+#
+# A test suite of unit tests that assert behaviour of separate functions
+#
+unit_test:
+  stage: test
+  script:
+    - npm run test:unit
+  artifacts:
+    paths:
+      - superlog.log
+
+#
+# Interface tests that test the functions written for communication with the gitlab api
+#
+api_test:
+  stage: test
+  script:
+    - npm run test:api
+  artifacts:
+    paths:
+      - superlog.log
+
+#
+# Interface tests that test the functions written for communication with the gitlab api
+#
+logger_test:
+  stage: test
+  allow_failure: true
+  script:
+    - npm run test:logger
+  artifacts:
+    paths:
+      - superlog.log
+
+#
+# Runs all the tests and collects coverage
+#
+coverage:
+  stage: analyse
+  allow_failure: true
+  script:
+    - npm run test:coverage
+  coverage: /All files\s*\|\s*([\d\.]+)/
+  artifacts:
+    paths:
+      - coverage/
+      - superlog.log
+
+# Security and license checks
+include:
+  - template: SAST.gitlab-ci.yml
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: License-Management.gitlab-ci.yml
+
+license_management:
+  stage: analyse
+
+sast:
+  stage: analyse
+  before_script:
+    - date
+    - rm -rf node_modules/
+
+dependency_scanning:
+  stage: analyse
+  before_script:
+    - date
