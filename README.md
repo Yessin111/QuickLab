@@ -1,8 +1,5 @@
 # Project Name
 
-[![build status](https://gitlab.ewi.tudelft.nl/TI2806/2018-2019/ED/cp19-ed-05/ed-05/badges/master/pipeline.svg)](https://gitlab.ewi.tudelft.nl/TI2806/2018-2019/ED/cp19-ed-05/ed-05/commits/master)
-[![coverage report](https://gitlab.ewi.tudelft.nl/TI2806/2018-2019/ED/cp19-ed-05/ed-05/badges/master/coverage.svg)](https://gitlab.ewi.tudelft.nl/TI2806/2018-2019/ED/cp19-ed-05/ed-05/commits/master)
-
 This project provides an interface for creating repositories for courses on GitLab in bulk. Groups of students can be imported from brightspace.
 
 ## Features
